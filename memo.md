@@ -8,52 +8,64 @@
 ## 実装
 ```python
 class Solution:
-    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        visited = set()
-        current_node = head
-        while current_node:
-            if current_node in visited:
-                return current_node
-            visited.add(current_node)
-            current_node = current_node.next
-        return None
+    def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        node = head
+        while node:
+            if node.next is None:
+                break
+            elif node.val == node.next.val:
+                node.next = node.next.next
+            else:
+                node = node.next
+        return head
 ```
+## 思考過程
+- 先頭からノードを見ていく
+- 現在のノードの値と次のノードの値が重複しているならば、次にくるノードを次の次にくるノードに上書く、そうでない場合は、ノードを進める
+- リストが1つの時、2つの時で問題ないか確認しておきたい。
 ## 感想
-- Linked List Cycle 1 と出力が違うだけでやるべきことは同じ。
+- Constraints で与えられる連結リストが空の場合があることを見落としてしまった。次からは入力の境界値を必ず確認する。
+- また、↑のケースの考慮の仕方も改善の余地がありそうなので、step2で良い方法がないか確認する。
 
 # step2
 ## 実装
 ```python
 class Solution:
-    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        visited = set()
+    def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if head is None:
+            return head
         current_node = head
-        while True:
-            if current_node is None:     # Reached the tail
-                return None
-            if current_node in visited:  # Cycle detected
-                return current_node
-            visited.add(current_node)
-            current_node = current_node.next
+        while current_node:
+            next_node = current_node.next
+            # Move to the point of no duplication
+            while (next_node) and (current_node.val == next_node.val):
+                next_node = next_node.next
+            current_node.next = next_node  # Update current_node.next
+            current_node = current_node.next  # Move to next_node
+        return head
 ```
 ## 感想
-- 無限ループで書くと、サイクルを検出できた状態とできなかった状態が同じインデント上に並ぶので分かりやすいかと思ったので、そう書いてみた。
+- discord上で「current.next」は次の処理へ進むとき以外に使うのは分かりづらい旨の議論があり、共感したのでnext_nodeを定義していくやり方を再検討した。
+- また、早期リターンなる概念を知った。入力がある前提で話を進めた方が良いケースはあると思うので、積極的に使いたい。
 
 # step3
 ## 実装
 ```python
 class Solution:
-    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        visited = set()
+    def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if head is None:
+            return head
         current_node = head
-        while True:
-            if current_node is None:  # Reached the tail node
-                return None
-            elif current_node in visited:  # Cycle detected
-                return current_node
-            else:  # Move to the next
-                visited.add(current_node)
-                current_node = current_node.next
+        while current_node:
+            next_node = current_node
+            """Replace the next node with a node
+            that does not duplicate the current node"""
+            while (next_node) and (current_node.val == next_node.val):
+                next_node = next_node.next
+            current_node.next = next_node
+
+            current_node = current_node.next
+        return head
 ```
 ## 感想
-- step2の考え方を応用して、3状態に分けて考えるのも良いかと思った。
+- 絵に起こした時にすんなり理解できる処理の流れにできたと思う。
