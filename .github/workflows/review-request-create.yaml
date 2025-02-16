@@ -1,0 +1,24 @@
+name: Create a review request message
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  create-message:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Print a review request message to logs
+          run: |
+            PROBLEM_TITLE="$(echo "${{ github.event.pull_request.title }}" \
+                | sed -n 's/^Solved:\s*\(.*\)/\1/p')"
+            BODY="${{ github.event.pull_request.body }}"
+            PROBLEM_LINKS="$(echo "$BODY" \
+            | grep -Eo 'https?://[^ ]+' \
+            | sed 's/)$//' \
+            | sort -u || echo "")"
+            echo "$PROBLEM_TITLE を解きました。"
+            echo "レビューをよろしくお願いいたします。"
+            echo "問題: $PROBLEM_LINKS"
+            echo "PR: ${{ github.event.pull_request.html_url }}"
+            echo "言語: Python"
